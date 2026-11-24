@@ -159,4 +159,5 @@ BITACORA, AJUSTE 1:
 "Gana quien cumpla mejor las metas" no define las metas. Son ahora 6 metas medibles por año.
 la "presión constante" es ahora un estado explícito (cuánto le falta para pagar cuota y gastos) más estrés acumulado.
 
-
+BITÁCORA 1.2:
+SE CAMBIA A* A DJKSTRA
