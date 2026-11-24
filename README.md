@@ -151,4 +151,12 @@ implementar gasolina y gnv
 añadir trameaje formal
 añadir pasaje diferenciado
 
+BITACORA, AJUSTE 1:
+
+ Las penalizaciones de reputación de la tabla (−0.5, −1…) son por acción, y con una escala 0–5 el sindicato se hundiría en días. Se aplicó un factor de escala configurable.
+"Si nadie paga la cuota empiezan con deuda" contradice "quien no paga es eliminado". Por lo tanto: si nadie puede pagar, nadie es eliminado y todos arrastran deuda y una penalización pasiva; si alguien puede pagar, los demás son eliminados.
+"Terminar su turno por su propia mano" es  abandono por sobrepresión (el agente renuncia). Suicidio.
+"Gana quien cumpla mejor las metas" no define las metas. Son ahora 6 metas medibles por año.
+la "presión constante" es ahora un estado explícito (cuánto le falta para pagar cuota y gastos) más estrés acumulado.
+
 
