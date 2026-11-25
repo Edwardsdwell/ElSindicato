@@ -161,3 +161,8 @@ la "presión constante" es ahora un estado explícito (cuánto le falta para pag
 
 BITÁCORA 1.2:
 SE CAMBIA A* A DJKSTRA
+
+es hermoso:
+
+<img width="1915" height="944" alt="image" src="https://github.com/user-attachments/assets/1de690cf-dab0-4133-9362-889dc82170ee" />
+
