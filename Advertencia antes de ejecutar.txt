@@ -1,0 +1,1 @@
+en miras de intentar asimilarse a un juego/rpg se le implementó música, el navegador puede no reconocerla pero si se reconoce inicia con sonido y es una canción temática típica de los minibuses.

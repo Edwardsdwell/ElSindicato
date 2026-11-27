@@ -1,0 +1,116 @@
+{
+  "proyecto": "Dies Irae",
+  "fecha": "2026-11-23T22:29:05",
+  "semilla": 0,
+  "dias_minis": 6000,
+  "dias_transito": 2000,
+  "dias_evaluacion": 365,
+  "epsilon": {
+    "inicial": 0.6,
+    "final": 0.05,
+    "minis": 0.02,
+    "transito": 0.0
+  },
+  "tanque_nominal_litros": 80,
+  "nota_combustible": "El valor de tanque es metadato de referencia; verificar que config.py y entorno.py lo implementen y que el consumo afecte las transiciones/recompensas.",
+  "alfa": 0.1,
+  "gamma": 0.97,
+  "n_estados_mini": 1728,
+  "n_acciones_mini": 20,
+  "n_estados_transito": 72,
+  "agentes": [
+    {
+      "archivo": "mini1.npy",
+      "nombre": "Hilarión Mamani Colque",
+      "personalidad": "agresivo",
+      "modelo": "Toyota Hiace 2008"
+    },
+    {
+      "archivo": "mini2.npy",
+      "nombre": "Jheanine Añez Condori",
+      "personalidad": "pasivo",
+      "modelo": "JinCheng Jinbei "
+    },
+    {
+      "archivo": "mini3.npy",
+      "nombre": "Eleuterio Apaza Conde",
+      "personalidad": "volatil",
+      "modelo": "Foton View CS2"
+    },
+    {
+      "archivo": "mini4.npy",
+      "nombre": "Yotoko Kakita Tokame Flores",
+      "personalidad": "agresivo",
+      "modelo": "Kingo Minivan"
+    },
+    {
+      "archivo": "mini5.npy",
+      "nombre": "Ricardo Kanye Milos West",
+      "personalidad": "volatil",
+      "modelo": "Kingo 17 DK4 MT6"
+    },
+    {
+      "archivo": "transito.npy",
+      "nombre": "Tránsito",
+      "algoritmo": "Q-learning"
+    }
+  ],
+  "acciones": [
+    "conducir_normal",
+    "cargar_combustible",
+    "terminar_turno",
+    "adelantar_doble_via",
+    "exceso_velocidad",
+    "tocar_claxon",
+    "tomar_atajo",
+    "huir_transito",
+    "ceder_paso",
+    "limite_velocidad",
+    "cumplir_ruta",
+    "aseo_unidad",
+    "obedecer_normas",
+    "no_aportar_sindicato",
+    "no_aportar_hogar",
+    "respetar_semaforos",
+    "maldecir_volante",
+    "conduccion_temeraria",
+    "estrellar_unidad",
+    "atropellar_pasajero"
+  ],
+  "metricas": {
+    "dias_completados": 365,
+    "reputacion_final": 5.0,
+    "ingreso_medio_minibus_dia": 319.16,
+    "faltas_dia": 0.48,
+    "accidentes_dia": 0.41,
+    "arrestos_transito_dia": 0.0,
+    "dia_activacion_transito": 241,
+    "resultado": "BUENO: varios sobreviven empatados en cumplimiento de metas (meta colectiva del sindicato NO alcanzada)"
+  },
+  "historial": [
+    {
+      "fecha": "2026-11-23T22:29:05",
+      "semilla": 0,
+      "dias_minis": 6000,
+      "dias_transito": 2000,
+      "dias_evaluacion": 365,
+      "resultado": "ejecución anterior; evaluación original no guardada"
+    },
+    {
+      "fecha": "2026-11-27T18:50:31-04:00",
+      "semilla": 99,
+      "dias_evaluacion": 365,
+      "metricas": {
+        "dias_completados": 365,
+        "reputacion_final": 5.0,
+        "ingreso_medio_minibus_dia": 319.16,
+        "faltas_dia": 0.48,
+        "accidentes_dia": 0.41,
+        "arrestos_transito_dia": 0.0,
+        "dia_activacion_transito": 241,
+        "resultado": "BUENO: varios sobreviven empatados en cumplimiento de metas (meta colectiva del sindicato NO alcanzada)"
+      },
+      "tipo": "evaluación de las políticas guardadas"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+# Entorno local y Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Cachés regenerables (OSMnx, mapas y segmentación de imágenes)
+.cache/
+
+# Corridas generadas; conserva únicamente la estructura vacía
+outputs/**
+!outputs/**/
+!outputs/**/.gitkeep
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Artefactos locales
+.impeccable/
+outputs/*
+!outputs/**/
+!outputs/**/.gitkeep
+

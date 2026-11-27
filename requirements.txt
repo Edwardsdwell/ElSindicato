@@ -1,0 +1,5 @@
+# Dependencias necesarias para la simulación, el entrenamiento y el mapa.
+# OSMnx instala transitivamente NetworkX, GeoPandas, pandas y PyProj.
+numpy
+networkx
+osmnx

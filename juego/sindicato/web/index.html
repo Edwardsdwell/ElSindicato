@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f3f0e5">
+  <meta name="description" content="Simulación entre cinco minibuses y Tránsito en la línea 369 de La Paz.">
+  <title>Línea 369 · Sindicato de Transporte 11 de Septiembre</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css?v=20261127-game-glass-v10">
+  <link rel="stylesheet" href="/design.css?v=20261127-training-dashboard-v12">
+</head>
+<body class="portal-pending">
+  <a class="skip-link" href="#top">Saltar al contenido</a>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+  <dialog id="routePortal" class="portal-overlay" aria-labelledby="portalTitle" aria-hidden="true" inert>
+    <div class="portal-atmosphere" aria-hidden="true"></div>
+    <header class="portal-heading">
+      <div class="portal-brand"><span class="portal-seal">369</span><span>Sindicato 11 de Septiembre<small>La Paz · Bolivia</small></span></div>
+      <div class="portal-intro"><p class="portal-kicker">Línea 369 · La Paz</p><h1 id="portalTitle">Centro de mando</h1><p>Cinco vistas para seguir el aprendizaje de la ruta.</p></div>
+      <div class="portal-actions"><button id="closePortal" class="portal-close" type="button">Cerrar menú</button></div>
+    </header>
+    <div class="portal-menu" role="group" aria-label="Secciones del centro de operaciones">
+      <button class="portal-panel" type="button" data-portal-view="vista-juego" style="--portal-accent:var(--gold)">
+        <span class="portal-number">01</span><span class="portal-glyph" aria-hidden="true">◈</span><span class="portal-copy"><strong>Simulación</strong><small>Despacha la línea y observa el aprendizaje en marcha.</small></span><span class="portal-readout"><small>Servicio</small><strong id="portalServiceReadout">En espera</strong></span><span class="portal-enter" aria-hidden="true">Entrar ↗</span>
+      </button>
+      <button class="portal-panel" type="button" data-portal-view="vista-personajes" style="--portal-accent:var(--wine)">
+        <span class="portal-number">02</span><span class="portal-glyph" aria-hidden="true">▱</span><span class="portal-copy"><strong>Conductores</strong><small>Consulta perfiles, estado y decisiones de cada unidad.</small></span><span class="portal-readout"><small>Flota activa</small><strong id="portalFleetReadout">0 / 5</strong></span><span class="portal-enter" aria-hidden="true">Entrar ↗</span>
+      </button>
+      <button class="portal-panel" type="button" data-portal-view="vista-telemetria" style="--portal-accent:var(--blue)">
+        <span class="portal-number">03</span><span class="portal-glyph" aria-hidden="true">⌁</span><span class="portal-copy"><strong>Telemetría</strong><small>Compara resultados, patrones y cambios de la temporada.</small></span><span class="portal-readout"><small>Reputación</small><strong id="portalRepReadout">—</strong></span><span class="portal-enter" aria-hidden="true">Entrar ↗</span>
+      </button>
+      <button class="portal-panel" type="button" data-portal-view="vista-bitacoras" style="--portal-accent:var(--gold-soft)">
+        <span class="portal-number">04</span><span class="portal-glyph" aria-hidden="true">▤</span><span class="portal-copy"><strong>Bitácoras</strong><small>Revisa el método, los experimentos y las corridas.</small></span><span class="portal-readout"><small>Intervalos por jornada</small><strong id="portalIntervalsReadout">16</strong></span><span class="portal-enter" aria-hidden="true">Entrar ↗</span>
+      </button>
+      <button class="portal-panel" type="button" data-portal-view="vista-reglas" style="--portal-accent:var(--aqua)">
+        <span class="portal-number">05</span><span class="portal-glyph" aria-hidden="true">⌘</span><span class="portal-copy"><strong>Reglas</strong><small>Consulta los parámetros y efectos de cada acción.</small></span><span class="portal-readout"><small>Jornada</small><strong id="portalRulesReadout">16 intervalos</strong></span><span class="portal-enter" aria-hidden="true">Entrar ↗</span>
+      </button>
+    </div>
+    <p class="portal-footnote">Selecciona una sección para entrar · el audio se activa con tu primer toque.</p>
+  </dialog>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Sindicato 11 de Septiembre, inicio">
+      <span class="brand-mark">369</span>
+      <span class="brand-copy"><b>SINDICATO</b><small>11 de Septiembre · La Paz</small></span>
+    </a>
+    <nav class="view-nav" aria-label="Secciones de la simulación">
+      <a href="#vista-juego" data-view="vista-juego" class="active" aria-current="page">Simulación</a>
+      <a href="#vista-personajes" data-view="vista-personajes">Conductores</a>
+      <a href="#vista-telemetria" data-view="vista-telemetria">Telemetría</a>
+      <a href="#vista-bitacoras" data-view="vista-bitacoras">Bitácoras</a>
+      <a href="#vista-reglas" data-view="vista-reglas">Reglas</a>
+    </nav>
+    <div class="topbar-tools">
+      <div class="live-status"><i id="liveDot"></i><span id="runState" aria-live="polite">Simulación en espera</span><b id="clock">Día 0000 · intervalo 00</b></div>
+      <button id="portalToggle" class="portal-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="routePortal"><span aria-hidden="true">◈</span><span>Abrir portal</span></button>
+      <button id="soundToggle" class="sound-toggle" type="button" aria-label="Activar audio" aria-pressed="false">
+        <svg class="sound-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8v4h3l4 3V5L6 8H3Z"/><path d="M13 7.5a4 4 0 0 1 0 5M15 5a7.5 7.5 0 0 1 0 10"/></svg>
+        <span id="soundLabel">Activar audio</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="dispatch-head">
+      <div class="dispatch-title">
+          <span class="kicker">CIUDAD EN MOVIMIENTO · SERVICIO DIURNO</span>
+          <h1>La Paz · línea <em>369</em></h1>
+        <p>Cinco minibuses y Tránsito aprenden sobre el corredor Villa Fátima–Cotahuma.</p>
+      </div>
+      <div class="run-controls glass-panel">
+        <label>Semilla <input id="seed" type="number" min="0" value="7"></label>
+        <label>Duración <select id="days"><option value="913">2,5 años · 913 días</option><option value="1826">5 años · 1.826 días</option><option value="365">1 año · 365 días</option><option value="30">30 días</option></select></label>
+        <label>Tránsito <select id="transitMode" title="Se aplica al próximo despacho"><option value="automatic" selected>Automático · 120 faltas</option><option value="manual">Manual · a pedido</option></select></label>
+        <button id="start" class="button-start" type="button">Iniciar simulación</button>
+      </div>
+      <p id="runFeedback" class="run-feedback" role="alert" hidden></p>
+    </section>
+
+    <section class="season-ledger" aria-label="Balance de la temporada">
+      <div><span class="kicker">Máximos de la temporada</span><p>Deuda máxima <b id="maxDebt">Bs 0</b><small id="maxDebtName">—</small></p></div>
+      <div><span class="kicker">Ingreso neto acumulado</span><p>Ganancia máxima <b id="maxGain">Bs 0</b><small id="maxGainName">—</small></p></div>
+      <div class="ledger-def"><span class="kicker">El reloj del servicio</span><p>Cada intervalo representa media hora simulada. Una jornada de 8 horas tiene 16 intervalos.</p></div>
+    </section>
+
+    <section class="season-result" id="seasonResult" hidden aria-live="polite"></section>
+
+    <section class="metric-ribbon" aria-label="Estado actual de la línea">
+      <div class="metric"><span>Jornada</span><strong id="dayMetric">—</strong><small id="tickMetric">A la espera de salida</small></div>
+      <div class="metric"><span>Reputación sindical</span><strong id="repMetric">—</strong><small>Meta mínima 4,20</small></div>
+      <div class="metric"><span>Faltas acumuladas</span><strong id="faultMetric">—</strong><small id="transitThresholdLabel">Despliegue bajo decisión del operador</small></div>
+      <div class="metric"><span>Pasajeros disponibles</span><strong id="paxMetric">—</strong><small>Demanda de la jornada</small></div>
+      <div class="metric traffic-metric"><span>Tráfico</span><strong id="trafficMetric">—</strong><div class="traffic-lights"><i></i><i></i><i></i></div></div>
+    </section>
+
+    <section id="cityView" class="city-layout">
+      <article class="city-panel glass-panel">
+        <header class="panel-heading">
+          <div><span class="kicker">Corredor operativo · línea 369</span><h2>Villa Fátima <i>→</i> Cotahuma</h2></div>
+          <span class="map-label"><i></i><span>Red vial de La Paz</span></span>
+        </header>
+        <div class="map-wrap">
+          <canvas id="cityMap" aria-label="Mapa animado de la línea 369 con minibuses, tráfico, peatones y Tránsito" aria-describedby="mapDescription"></canvas>
+          <p id="mapDescription" class="visually-hidden">El mapa muestra el corredor de Villa Fátima a Cotahuma, la ubicación aproximada de las paradas, los minibuses, el tráfico, los peatones y las unidades de Tránsito.</p>
+          <div class="map-loading" id="overlay"><span class="spinner"></span><b>Listo para salir</b><small>Las unidades esperan la señal de despacho.</small></div>
+          <div class="map-corner">La Paz <span>·</span> línea 369</div>
+          <div class="map-legend"><span><i class="legend-road"></i>Ruta</span><span><i class="legend-mini">●</i>Minibuses</span><span><i class="legend-police">●</i>Tránsito</span><span><i class="legend-ped">●</i>Peatones</span><span><i class="legend-event">!</i>Incidente</span></div>
+        </div>
+        <div class="timeline"><span id="timelineLabel">Año 1</span><div class="track"><i id="timelineFill"></i></div><span id="progressLabel">0%</span></div>
+        <div class="playback">
+          <div class="transport-controls" aria-label="Controles de la simulación">
+            <button id="pause" class="button-pause" type="button" disabled>Pausar</button>
+            <button id="resume" class="button-resume" type="button" disabled>Continuar</button>
+            <button id="reset" class="button-reset" type="button" disabled>Reiniciar</button>
+          </div>
+          <div class="step-controls"><button id="stepTick" type="button" disabled>Avanzar un intervalo</button><button id="stepDay" type="button" disabled>Avanzar un día</button><button id="stepMonth" type="button" disabled>Avanzar 30 días</button></div>
+          <label class="speed-control"><span>Ritmo</span><input id="speed" type="range" min="1" max="30" value="8"><b id="speedValue">8 intervalos/s</b></label>
+        </div>
+      </article>
+
+      <aside class="ops-rail">
+        <section class="rail-panel glass-panel">
+          <header class="rail-heading"><div><span class="kicker">En la calzada</span><h2>Unidades</h2></div><strong id="fleetCount">0 / 5</strong></header>
+          <div id="fleet" class="fleet"><div class="empty">La flotilla aparecerá al cargar los modelos.</div></div>
+        </section>
+        <section class="rail-panel transit-card glass-panel">
+          <header class="transit-top"><img class="transit-glyph" src="/multimedia/sprites/vehicles/transito.png" alt="Vehículo de Tránsito"><span><b>Tránsito</b><small id="transitState">Fuera de servicio</small></span><strong id="arrestCount">0</strong></header>
+          <div class="transit-rule"><i id="transitBar"></i></div>
+          <div class="transit-dispatch"><button id="launchTransit" class="button-transit" type="button" disabled>Desplegar Tránsito</button><span id="transitModeNote" class="transit-note">Automático a 120 faltas · también puedes adelantarlo</span></div>
+          <small>Aprendizaje de Tránsito · despacho registrado</small>
+        </section>
+        <section class="rail-panel event-feed glass-panel" id="eventFeed"><header><span class="kicker">Radio de ruta</span><h2>Sucesos recientes</h2></header><p>Sin incidentes reportados.</p></section>
+      </aside>
+    </section>
+
+    <section id="driversView" class="drivers-section">
+      <header class="section-heading"><div><h2>Flota y conductores</h2></div><p>Consulta el perfil de cada conductor y cambia la imagen de su unidad.</p></header>
+      <div class="drivers-grid">
+        <aside class="driver-selector glass-panel"><div class="selector-title"><span class="kicker">Cinco historias</span><span>Seleccionar</span></div><div id="driverTabs" class="driver-tabs" role="tablist" aria-label="Seleccionar conductor"></div></aside>
+        <article class="driver-detail glass-panel" id="driverDetail" aria-live="polite">
+          <div class="driver-empty">Inicia la simulación para conocer a los conductores.</div>
+        </article>
+      </div>
+      <div class="history-heading"><div><span class="kicker">Registro de jornada</span><h3>Evolución en el tiempo</h3></div><span id="historyRange">Sin muestras registradas</span></div>
+      <div class="history-charts">
+        <figure class="history-card glass-panel"><figcaption><span>Ingreso por jornada</span><small>Bs / día</small></figcaption><div id="incomeChart" class="history-chart"></div></figure>
+        <figure class="history-card glass-panel"><figcaption><span>Integridad mecánica</span><small>Porcentaje</small></figcaption><div id="integrityChart" class="history-chart"></div></figure>
+        <figure class="history-card glass-panel"><figcaption><span>Estrés al volante</span><small>Escala 0–100</small></figcaption><div id="stressChart" class="history-chart"></div></figure>
+      </div>
+    </section>
+
+    <section id="analyticsView" class="analytics-section">
+      <header class="section-heading"><div><h2>Telemetría de la temporada</h2></div><p>Patrones medidos en las decisiones y bitácoras de la simulación.</p></header>
+      <div class="analytics-grid">
+        <article class="analytics-panel glass-panel">
+          <header><h3>¿El estrés cambia las decisiones?</h3><p>Agresión y estrés frente a delitos observados por cada 100 intervalos activos.</p></header>
+          <div id="pressureChart" class="advanced-chart"></div>
+          <div class="chart-foot"><span>● cada marca es un conductor</span><span id="pressureNote">Esperando datos</span></div>
+        </article>
+        <article class="analytics-panel glass-panel">
+          <header><h3>Eventos y suerte</h3><p>Incidentes por cada 100 intervalos útiles y el índice del resultado final.</p></header>
+          <div id="luckChart" class="driver-comparison"></div>
+          <div class="chart-foot"><span>Eventos: atracos, cortes, prestes, apariciones fantasmas y más</span><span>Índice 0–1</span></div>
+        </article>
+        <article class="analytics-panel glass-panel">
+          <header><h3>El costo de la ventaja individual</h3><p>Ganancia acumulada frente a los cambios modelados en reputación e integridad.</p></header>
+          <div id="egoChart" class="driver-comparison"></div>
+          <div class="chart-foot"><span>Impactos reputacionales en puntos</span><span>Daño a la unidad en puntos</span></div>
+        </article>
+        <article class="analytics-panel glass-panel cluster-panel">
+          <header><h3>Grupos de comportamiento</h3><p>K-means agrupa resultados, decisiones registradas y rasgos del conductor.</p></header>
+          <div id="clusterPlot" class="cluster-plot"></div>
+          <div id="clusterList" class="cluster-list"></div>
+        </article>
+        <article class="analytics-panel glass-panel reputation-panel">
+          <header><h3>Reputación durante el servicio</h3><p>La marca vertical señala cuándo Tránsito se incorporó a la ruta.</p></header>
+          <div id="reputationChart" class="advanced-chart"></div>
+          <div class="chart-foot"><span>Línea de reputación · escala 0–5</span><span id="transitDayLabel">Tránsito aún no activado</span></div>
+        </article>
+      </div>
+      <div id="analyticsEmpty" class="analytics-empty glass-panel">La telemetría aparecerá después de iniciar la simulación.</div>
+    </section>
+
+    <footer class="page-footer"><span>Simulación multiagente · aprendizaje por refuerzo</span><span id="modelId">Huella de modelos pendiente</span></footer>
+  </main>
+  <dialog id="resetDialog" class="confirm-dialog" aria-labelledby="resetTitle" aria-describedby="resetDescription">
+    <form method="dialog">
+      <p class="dialog-kicker">Confirmación</p>
+      <h2 id="resetTitle">Reiniciar la corrida</h2>
+      <p id="resetDescription">Se perderá el avance de esta corrida. La semilla, la duración y el modo de Tránsito se conservarán.</p>
+      <div class="dialog-actions">
+        <button id="cancelReset" class="button-secondary" value="cancel">Conservar corrida</button>
+        <button id="confirmReset" class="button-danger" value="confirm">Reiniciar corrida</button>
+      </div>
+    </form>
+  </dialog>
+  <span id="audioStatusAnchor" class="visually-hidden" aria-hidden="true"></span><p id="audioStatus" class="audio-feedback visually-hidden" role="status" aria-live="polite"></p>
+  <script type="module" src="/app.js?v=20261127-training-dashboard-v12"></script>
+</body>
+</html>
+
+
+
+
+
+

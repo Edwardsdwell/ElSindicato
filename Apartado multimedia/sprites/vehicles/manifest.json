@@ -1,0 +1,90 @@
+{
+  "model": "isnet-general-use",
+  "format": "PNG RGBA",
+  "icons": [
+    {
+      "id": "mini1",
+      "source": "mini1.jpg",
+      "output": "mini1.png",
+      "source_size": [
+        1200,
+        896
+      ],
+      "canvas_size": [
+        192,
+        128
+      ],
+      "transparent_pixels": 11320
+    },
+    {
+      "id": "mini2",
+      "source": "mini2.jpg",
+      "output": "mini2.png",
+      "source_size": [
+        1200,
+        896
+      ],
+      "canvas_size": [
+        192,
+        128
+      ],
+      "transparent_pixels": 13014
+    },
+    {
+      "id": "mini3",
+      "source": "mini3.jpg",
+      "output": "mini3.png",
+      "source_size": [
+        1200,
+        896
+      ],
+      "canvas_size": [
+        192,
+        128
+      ],
+      "transparent_pixels": 13346
+    },
+    {
+      "id": "mini4",
+      "source": "mini4.jpg",
+      "output": "mini4.png",
+      "source_size": [
+        1200,
+        896
+      ],
+      "canvas_size": [
+        192,
+        128
+      ],
+      "transparent_pixels": 14102
+    },
+    {
+      "id": "mini5",
+      "source": "mini6.jpg",
+      "output": "mini5.png",
+      "source_size": [
+        1200,
+        896
+      ],
+      "canvas_size": [
+        192,
+        128
+      ],
+      "transparent_pixels": 11616
+    },
+    {
+      "id": "transito",
+      "source": "transito.jpg",
+      "output": "transito.png",
+      "source_size": [
+        500,
+        333
+      ],
+      "canvas_size": [
+        192,
+        128
+      ],
+      "transparent_pixels": 15530
+    }
+  ]
+}
