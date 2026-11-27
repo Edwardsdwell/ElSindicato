@@ -747,6 +747,14 @@ main{width:min(100% - 72px,1740px);max-width:1740px;margin-inline:auto;padding:3
 .asset-slot.load-error .asset-frame img { opacity: 0; }
 .asset-slot.load-error .asset-placeholder { display: block; }
 .asset-frame { background: linear-gradient(145deg, #e9eddf, #f8f5e9); }
+.run-controls label:nth-child(4){min-width:150px}.asset-slot .asset-placeholder{position:relative;z-index:1;color:#40594a;text-align:center;padding:20px}.asset-slot.load-error .asset-placeholder{display:block}.journal-entry{scroll-margin-top:90px}
+@media(max-width:760px){.run-controls label:nth-child(4){grid-column:1/-1}.run-controls .button-start{grid-column:1/-1;grid-row:auto}}
+
+/* Menús nativos legibles tanto cerrados como al desplegar las opciones. */
+select { color-scheme: light; color: #263b2d; background-color: #fffdf6; }
+select option { color: #263b2d; background-color: #fffdf6; }
+select option:checked { color: #173c35; background-color: #c9eee6; }
+select:focus-visible { border-color: #168b83; box-shadow: 0 0 0 3px rgba(22,139,131,.2); }
 
 /* La franja completa funciona como acceso; no hace falta repetir «Entrar». */
 #routePortal .portal-enter {

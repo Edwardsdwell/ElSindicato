@@ -73,6 +73,7 @@ class Runner:
         self.running = False
         self.target_days = 1826
         self.transit_mode = "automatic"
+        self.difficulty = "normal"
         self.ticks_per_second = 8
         self.pending_steps = 0
         self.finished_saved = False
@@ -113,25 +114,27 @@ class Runner:
             digest.update(b"\n")
         return digest.hexdigest()
 
-    def start(self, seed, days, transit_mode="automatic"):
+    def start(self, seed, days, transit_mode="automatic", difficulty="normal"):
         transit_mode = "automatic" if transit_mode == "automatic" else "manual"
+        difficulty = difficulty if difficulty in C.DIFICULTADES else "normal"
         with self.lock:
             if self.loading:
                 return
             self.loading = True; self.error = None; self.running = False
             self.sim = None; self.seed = int(seed); self.target_days = int(days)
             self.transit_mode = transit_mode
+            self.difficulty = difficulty
             self.finished_saved = False; self.pending_steps = 0
             self.history = {i: [] for i in range(1, len(C.PERFILES) + 1)}
             self.history_revision = 0
-        threading.Thread(target=self.initialize, args=(int(seed), transit_mode), daemon=True).start()
+        threading.Thread(target=self.initialize, args=(int(seed), transit_mode, difficulty), daemon=True).start()
 
     def reset(self):
         with self.lock:
             if self.loading or self.sim is None or self.finished_saved:
                 return False
-            seed, days, transit_mode = self.seed, self.target_days, self.transit_mode
-        self.start(seed, days, transit_mode)
+            seed, days, transit_mode, difficulty = self.seed, self.target_days, self.transit_mode, self.difficulty
+        self.start(seed, days, transit_mode, difficulty)
         return True
 
     def launch_transit(self):
@@ -145,7 +148,7 @@ class Runner:
             self.sim.activar_transito()
             return self.snapshot(), 200
 
-    def initialize(self, seed, transit_mode):
+    def initialize(self, seed, transit_mode, difficulty="normal"):
         try:
             qm, qt, digest, code_digest = self.model_data()
             graph_file=GRAPH_CACHE
@@ -155,7 +158,7 @@ class Runner:
                 except Exception: city=None
             sim = Simulacion(semilla=seed, modo="simulacion", Q_minis=qm, Q_transito=qt,
                              eps_minis=.05, eps_transito=.05, ciudad=city,
-                             transito_manual=(transit_mode == "manual"))
+                             transito_manual=(transit_mode == "manual"), dificultad=difficulty)
             if city is None:
                 graph_file.parent.mkdir(parents=True,exist_ok=True)
                 ox.io.save_graphml(sim.ciudad.G,graph_file)
@@ -311,6 +314,7 @@ class Runner:
                 "modelo_sha256": self.model_hash, "codigo_sha256": self.code_hash,
                 "red_osm_sha256":self.street_hash,"osmnx_version":ox.__version__,
                 "modo_transito": self.transit_mode,
+                "dificultad": self.difficulty,
                 "dia_lanzamiento_transito": self.sim.transito.dia_activacion,
                 "epsilon_minis": self.sim.eps_m,
                 "epsilon_transito": self.sim.eps_t, "resultado": self.sim.resultado(), "version": 1}
@@ -429,6 +433,7 @@ class Runner:
                 "day":s.dia,"target_days":self.target_days,"tick":s.tick_global,"tick_in_day":s.tick_global%C.TICKS,
                 "ticks_per_second":self.ticks_per_second,"reputation":round(s.rep,2),"faults":s.faltas,
                 "transit_mode":self.transit_mode,"transit_threshold":C.LIMITE_FALTAS,
+                "difficulty":self.difficulty,"difficulty_name":C.DIFICULTADES[self.difficulty]["nombre"],
                 "transit_day":s.transito.dia_activacion,
                 "traffic":s.visual_trafico,"transit_active":s.transito.activo,"agents":agents,"route":route,
                 "transit":transito,"events":events,"pedestrians":pedestrians,
@@ -634,7 +639,7 @@ class Handler(SimpleHTTPRequestHandler):
             size=int(self.headers.get("Content-Length","0")); data=json.loads(self.rfile.read(size) or b"{}")
             path=urlparse(self.path).path
             if path=="/api/start":
-                RUNNER.start(data.get("seed",7),data.get("days",1826),data.get("transit_mode","automatic"))
+                RUNNER.start(data.get("seed",7),data.get("days",1826),data.get("transit_mode","automatic"),data.get("difficulty","normal"))
             elif path=="/api/reset":
                 if not RUNNER.reset():
                     self.respond({"error":"No se puede reiniciar una simulación inexistente, cargando o ya guardada."},409); return

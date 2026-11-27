@@ -83,7 +83,7 @@ def multa_transito(sim, info, objetivo):
 class Simulacion:
     def __init__(self, semilla=0, modo="simulacion", Q_minis=None, Q_transito=None, aprende_minis=True,
                  aprende_transito=True, eps_minis=0.05, eps_transito=0.05, bitacora=True, ciudad=None,
-                 transito_manual=False):
+                 transito_manual=False, dificultad="normal"):
         self.rng = np.random.default_rng(semilla); self.modo = modo; self.ciudad = ciudad or Ciudad()
         self.aprende_m, self.aprende_t, self.eps_m, self.eps_t, self.registrar = aprende_minis, aprende_transito, eps_minis, eps_transito, bitacora
         self.minis = []
@@ -96,7 +96,9 @@ class Simulacion:
         if Q_transito is not None: cerebro_t.Q = Q_transito.copy()
         self.transito = Transito(cerebro_t); self.transito_manual = bool(transito_manual)
         self.dia = 0; self.rep = C.REP_MAX; self.faltas = 0; self.terminado = False; self.motivo_fin = ""
-        self.cuota = C.CUOTA; self.pen_pasiva = 1.0; self.cuotas_recaudadas = 0.0
+        self.dificultad_id = dificultad if dificultad in C.DIFICULTADES else "normal"
+        self.dificultad = C.DIFICULTADES[self.dificultad_id]
+        self.cuota = C.CUOTA * self.dificultad["cuota"]; self.pen_pasiva = 1.0; self.cuotas_recaudadas = 0.0
         self.tick_global = 0; self.diario = []; self.registro_anual = []; self.eventos_total = 0
         # Telemetría ligera para el panel en vivo; no altera el consumo del RNG del experimento.
         self.visual_tick = -1; self.visual_trafico = 0; self.visual_eventos = []
@@ -250,7 +252,7 @@ class Simulacion:
                         muerte=False, crimen=False, vueltas=0, huyo=False, multado=False, evento=None, gasto=0.0)
             m.enfriamiento = min(99, m.enfriamiento + 1); cruzo_rojo = False
             if acc.nombre == "cargar_combustible":
-                gasto = acc.costo * (TANQUE_LITROS - m.combustible) / TANQUE_LITROS
+                gasto = acc.costo * self.dificultad["precio_combustible"] * (TANQUE_LITROS - m.combustible) / TANQUE_LITROS
                 m.combustible = TANQUE_LITROS; m.enfriamiento = 0; m.billetera -= gasto; info["gasto"] = gasto; v = 0.0
 
             elif acc.nombre == "terminar_turno":
@@ -276,7 +278,7 @@ class Simulacion:
                 factor_trafico_combustible = (1.0, 1.12, 1.30)[trafico_m]
                 factor_velocidad = 1.0 + 0.12 * max(0.0, v / m.v_est - 1.0)
                 factor_accion = 0.95 if acc.nombre == "limite_velocidad" else 1.0
-                m.combustible -= (distancia_tick / RENDIMIENTO_KM_L) * factor_trafico_combustible * factor_velocidad * factor_accion
+                m.combustible -= (distancia_tick / RENDIMIENTO_KM_L) * factor_trafico_combustible * factor_velocidad * factor_accion * self.dificultad["combustible"]
                 m.combustible = max(0.0, m.combustible)
 
                 if acc.costo: m.billetera -= acc.costo; info["gasto"] = acc.costo
@@ -318,7 +320,7 @@ class Simulacion:
                 if forzado or self.rng.random() < max(p, 0):
                     inf["accidente"] = True; m.accidentes += 1; severidad = float(self.rng.integers(5, 25))
                     fuera_de_ruta = inf["tramo_i"] in ciu.atajos and acc.nombre == "tomar_atajo"
-                    m.integridad -= (acc.integridad if forzado else severidad) * (1.5 if fuera_de_ruta else 1.0)
+                    m.integridad -= (acc.integridad if forzado else severidad) * (1.5 if fuera_de_ruta else 1.0) * self.dificultad["desgaste"]
                     m.buscado += 0.4; fl += 1; self.rep -= 0.003 if fuera_de_ruta else 0.01
                     if fuera_de_ruta: m.estres += 12
                     inf["ingreso"] *= 0.5; m.estres += 4
@@ -331,7 +333,7 @@ class Simulacion:
                         fl += 3; self.rep -= C.PENALIZACION_REP_ARRESTO * (0.5 if fuera_de_ruta else 1.0); inf["ingreso"] = 0.0
             if inf["pax_fuera"]:
                 self.rep -= 0.004 * inf["pax_fuera"]
-            if not forzado: m.integridad -= acc.integridad
+            if not forzado: m.integridad -= acc.integridad * self.dificultad["desgaste"]
             if acc.tipo == "criminal":
                 inf["crimen"] = True; m.crimenes += 1; fl += 1; m.tick_ultimo_crimen = self.tick_global
             m.buscado += acc.buscado
@@ -342,7 +344,7 @@ class Simulacion:
                 m.eventos += 1; m.eventos_dia += 1; self.eventos_total += 1
                 if ev == 2: m.billetera -= float(self.rng.integers(40, 120)); m.estres += 8        # atraco
                 elif ev == 3: inf["ingreso"] = 0.0; m.estres += 6                                  # aparición fantasma
-                else: inf["ingreso"] *= 0.4; m.combustible = max(0.0, m.combustible - 3)          # bloqueos / entradas / cortes
+                else: inf["ingreso"] *= 0.4; m.combustible = max(0.0, m.combustible - 3 * self.dificultad["combustible"])  # bloqueos / entradas / cortes
             if inf["evento"]:
                 self.visual_eventos.append({"mini": m.idx + 1, "nombre": inf["evento"]})
             m.ingreso += inf["ingreso"]; m.pasajeros += inf["pax"]; m.ingreso_dia += inf["ingreso"]; m.billetera += inf["ingreso"]
@@ -436,11 +438,11 @@ class Simulacion:
             frac_h = m.omite_hogar / m.ticks_trabajo if m.ticks_trabajo else 0.0
             impuesto = C.TASA_IMPUESTO * m.ingreso_dia
             repuestos = C.TASA_REPUESTOS * m.ingreso_dia * (1 + (100 - m.integridad) / 100)
-            hogar_debido = m.familia * 1.5 * (0.5 if m.estado == "prision" else 1.0)
+            hogar_debido = m.familia * 1.5 * self.dificultad["hogar"] * (0.5 if m.estado == "prision" else 1.0)
             hogar_pagado = hogar_debido * (1 - frac_h)
             sind_pagado = cuota_dia * (1 - frac_s) if m.estado == "activo" else 0.0
             reparacion = min(max(0.0, 80 - m.integridad), 10.0); m.integridad += reparacion
-            m.billetera -= impuesto + repuestos + hogar_pagado + sind_pagado + reparacion * C.COSTO_REPARACION_POR_PT
+            m.billetera -= impuesto + repuestos * self.dificultad["reparacion"] + hogar_pagado + sind_pagado + reparacion * C.COSTO_REPARACION_POR_PT * self.dificultad["reparacion"]
             m.deuda_sindicato += cuota_dia - sind_pagado; self.cuotas_recaudadas += sind_pagado
             m.deuda_maxima = max(m.deuda_maxima, m.deuda_sindicato, -min(0.0, m.billetera))
             m.buscado = max(0.0, m.buscado - 0.25)
@@ -468,7 +470,7 @@ class Simulacion:
         for m in self.minis:
             if m.estado in ("eliminado", "abandono") and m.dia_fin is not None and m.dia_fin < self.dia - 365:
                 m.metas_anio.append(0.0); continue
-            g = [np.clip((m.billetera - m.billetera_anio0) / C.CUOTA, 0, 1), np.clip(m.vueltas_anio / 400, 0, 1),
+            g = [np.clip((m.billetera - m.billetera_anio0) / self.cuota, 0, 1), np.clip(m.vueltas_anio / 400, 0, 1),
                  np.clip(m.integridad / 60, 0, 1), 1 - m.omite_sind_anio / max(1, m.ticks_anio),
                  1 - m.omite_hogar_anio / max(1, m.ticks_anio), 1.0 if m.buscado < 2 else 0.0]
             m.metas_anio.append(float(np.mean(g)) if m.estado != "eliminado" else 0.0)
@@ -512,7 +514,7 @@ class Simulacion:
             anios = len(C.DIAS_POR_ANO); g = m.metas_anio + [0.0] * (anios - len(m.metas_anio))
             return float(np.mean(g))
         puntajes = {m.idx: puntaje(m) for m in self.minis}
-        meta_cumplida = self.cuotas_recaudadas >= C.META_SINDICATO_RATIO * len(self.minis) * C.CUOTA * len(C.DIAS_POR_ANO)
+        meta_cumplida = self.cuotas_recaudadas >= C.META_SINDICATO_RATIO * len(self.minis) * C.CUOTA * self.dificultad["cuota"] * len(C.DIAS_POR_ANO)
         ganadores = None
         if self.terminado or not vivos: final = f"MALO: todos pierden ({self.motivo_fin or 'sin sobrevivientes'})"
         elif self.rep < C.REP_MIN_REQ: final = "AMARGO: sobreviven, pero el sindicato está desprestigiado (rep < 4.2) y nadie gana"
@@ -534,5 +536,5 @@ class Simulacion:
                     maxima_ganancia=max((m.ganancia_maxima for m in self.minis), default=0.0),
                     maxima_ganancia_quien=max(self.minis, key=lambda m: m.ganancia_maxima).nombre if self.minis else None,
                     cuotas_recaudadas=self.cuotas_recaudadas, meta_cumplida=bool(meta_cumplida), faltas=self.faltas,
-                    dia_transito=self.transito.dia_activacion)
+                    dia_transito=self.transito.dia_activacion, dificultad=self.dificultad_id)
 

@@ -12,6 +12,15 @@ TOTAL_DIAS = sum(DIAS_POR_ANO)
 # ---------------- Economía ----------------
 TARIFA = 3.0                    # Bs por pasajero
 CUOTA = 9000.0                  # cuota anual al sindicato (igual para todos)
+# Multiplicadores aislados por corrida; no modifican las constantes compartidas del modelo.
+DIFICULTADES = {
+    "facil": {"nombre": "Fácil", "cuota": 0.75, "hogar": 0.8, "combustible": 0.8,
+              "precio_combustible": 0.9, "desgaste": 0.75, "reparacion": 0.8},
+    "normal": {"nombre": "Normal", "cuota": 1.0, "hogar": 1.0, "combustible": 1.0,
+               "precio_combustible": 1.0, "desgaste": 1.0, "reparacion": 1.0},
+    "dificil": {"nombre": "Difícil", "cuota": 1.4, "hogar": 1.2, "combustible": 1.35,
+                "precio_combustible": 1.2, "desgaste": 1.3, "reparacion": 1.25},
+}
 PENALIZACION_CUOTA = 1.10       # si reputación < REP_MIN_REQ el sindicato sube la cuota 10%
 COSTO_COMBUSTIBLE = 556.8        # Bs por recarga (un solo tipo de combustibley se considera fulleado)
 ENFRIAMIENTO_RECARGA = 7        # ticks

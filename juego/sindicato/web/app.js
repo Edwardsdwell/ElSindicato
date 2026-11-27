@@ -464,7 +464,7 @@ async function startSimulation() {
   updateRunFeedback();
   $('start').disabled = true;
   try {
-    const state = await post('/api/start', { seed: Number($('seed').value), days: Number($('days').value), transit_mode: $('transitMode').value });
+    const state = await post('/api/start', { seed: Number($('seed').value), days: Number($('days').value), transit_mode: $('transitMode').value, difficulty: $('difficulty').value });
     clearRunView();
     setState(state);
   } catch (error) {
@@ -528,7 +528,8 @@ $('driverDetail').addEventListener('change', event => {
   }
 });
 function showView(id, updateHash = false) {
-  const target = document.getElementById(id) ? id : 'vista-juego';
+  const node = document.getElementById(id);
+  const target = node?.classList.contains('app-view') ? id : 'vista-juego';
   activeViewId = target;
   document.querySelectorAll('.app-view').forEach(view => {
     const active = view.id === target;
@@ -543,10 +544,33 @@ function showView(id, updateHash = false) {
   });
   if (updateHash && location.hash !== `#${target}`) history.replaceState(null, '', `#${target}`);
   if (target === 'vista-reglas') loadRules();
-  if (target === 'vista-bitacoras' && current?.ready) $('runJournal').textContent = `Corrida actual · semilla ${current.seed} · día ${current.day} de ${current.target_days} · ${current.transit_mode === 'manual' ? 'Tránsito manual' : 'Tránsito automático'}.`;
+  if (target === 'vista-bitacoras' && current?.ready) $('runJournal').textContent = `Corrida actual · semilla ${current.seed} · día ${current.day} de ${current.target_days} · ${current.transit_mode === 'manual' ? 'Tránsito manual' : 'Tránsito automático'} · dificultad ${current.difficulty_name || 'Normal'}.`;
   if (target === 'vista-juego') { requestAnimationFrame(resizeMap); requestAnimationFrame(animateMap); }
   updateContextAudio();
 }
+function scrollToJournalAnchor(id) {
+  const destination = document.getElementById(id);
+  const view = destination?.closest('.app-view');
+  if (!destination || !view || destination === view) return false;
+  showView(view.id);
+  requestAnimationFrame(() => destination.scrollIntoView({
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start',
+  }));
+  return true;
+}
+function routeHash() {
+  const target = location.hash.slice(1);
+  if (target === 'portal') { openPortal(); return; }
+  if (portal.open) closePortal({ restoreHash: false });
+  if (!scrollToJournalAnchor(target)) showView(target);
+}
+document.querySelector('#vista-bitacoras .subnav').addEventListener('click', event => {
+  const link = event.target.closest('a[href^="#bitacora-"]');
+  if (!link) return;
+  event.preventDefault();
+  history.pushState(null, '', link.hash);
+  scrollToJournalAnchor(link.hash.slice(1));
+});
 const portal = $('routePortal');
 const portalTrigger = $('portalToggle');
 const soundToggle = $('soundToggle');
@@ -604,7 +628,13 @@ portal.addEventListener('click', event => {
   panel.classList.add('is-selected');
   panel.closest('.portal-menu').classList.add('chosen');
   showView(panel.dataset.portalView, true);
-  window.setTimeout(closePortal, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 150);
+  window.setTimeout(() => {
+    closePortal();
+    if (pendingJournalAnchor && panel.dataset.portalView === 'vista-bitacoras') {
+      const anchor = pendingJournalAnchor; pendingJournalAnchor = null;
+      window.setTimeout(() => scrollToJournalAnchor(anchor), 180);
+    }
+  }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 150);
 });
 portal.addEventListener('keydown', event => {
   if (event.key === 'Escape') { event.preventDefault(); closePortal(); return; }
@@ -619,7 +649,7 @@ async function loadRules() {
   try {
     const response = await fetch('/api/rules'); const data = await response.json();
     const summary = `<div class="rule-facts"><p><b>${data.ticks_per_day}</b><span>intervalos por jornada</span></p><p><b>${data.hours_per_tick}</b><span>horas por intervalo</span></p><p><b>Bs ${Number(data.fare_bs).toFixed(2)}</b><span>tarifa base</span></p><p><b>Bs ${Number(data.annual_fee_bs).toLocaleString('es-BO')}</b><span>cuota anual</span></p><p><b>${Number(data.reputation_minimum).toFixed(1)}</b><span>reputación mínima</span></p><p><b>${data.transit_fault_threshold}</b><span>faltas para Tránsito</span></p></div>`;
-    const kinds = { neutro: 'Servicio', egoista: 'Individualista', altruista: 'Cooperativa', filosofica: 'Criterio', criminal: 'Crítica' };
+    const kinds = { neutro: 'Servicio', egoista: 'Individualista', altruista: 'Cooperativa', filosofica: 'Filosófica', criminal: 'Criminal' };
     const cards = data.actions.map((action, index) => {
       const metrics = [
         ['Velocidad', `${Number(action.speed).toFixed(2)}×`],
@@ -642,12 +672,8 @@ async function loadRules() {
   } catch { root.innerHTML = '<p>No se pudieron cargar los parámetros del motor.</p>'; }
 }
 document.querySelectorAll('.view-nav a').forEach(link => link.addEventListener('click', event => { event.preventDefault(); showView(link.dataset.view, true); }));
-window.addEventListener('hashchange', () => {
-  const target = location.hash.slice(1);
-  if (target === 'portal') { openPortal(); return; }
-  if (portal.open) closePortal({ restoreHash: false });
-  showView(target);
-});
+window.addEventListener('hashchange', routeHash);
+window.addEventListener('popstate', routeHash);
 canvas.addEventListener('pointermove', event => {
   const bounds = canvas.getBoundingClientRect(), frame = fitMap(); if (!frame) return;
   const mx = event.clientX - bounds.left, my = event.clientY - bounds.top;
@@ -664,7 +690,9 @@ canvas.addEventListener('click', () => {
 });
 const initialHash = location.hash.slice(1);
 const validInitialViews = ['vista-juego', 'vista-personajes', 'vista-telemetria', 'vista-bitacoras', 'vista-reglas'];
-showView(validInitialViews.includes(initialHash) ? initialHash : 'vista-juego');
+const initialAnchor = document.getElementById(initialHash);
+let pendingJournalAnchor = initialAnchor && initialAnchor.closest('.app-view')?.id === 'vista-bitacoras' ? initialHash : null;
+showView(validInitialViews.includes(initialHash) ? initialHash : pendingJournalAnchor ? 'vista-bitacoras' : 'vista-juego');
 openPortal();
 
 

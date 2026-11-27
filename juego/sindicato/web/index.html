@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/style.css?v=20261127-game-glass-v10">
-  <link rel="stylesheet" href="/design.css?v=20261127-training-dashboard-v12">
+  <link rel="stylesheet" href="/design.css?v=20261127-select-contrast-v14">
 </head>
 <body class="portal-pending">
   <a class="skip-link" href="#top">Saltar al contenido</a>
@@ -76,6 +76,7 @@
         <label>Semilla <input id="seed" type="number" min="0" value="7"></label>
         <label>Duración <select id="days"><option value="913">2,5 años · 913 días</option><option value="1826">5 años · 1.826 días</option><option value="365">1 año · 365 días</option><option value="30">30 días</option></select></label>
         <label>Tránsito <select id="transitMode" title="Se aplica al próximo despacho"><option value="automatic" selected>Automático · 120 faltas</option><option value="manual">Manual · a pedido</option></select></label>
+        <label>Dificultad <select id="difficulty" title="Ajusta cuotas, combustible y desgaste para esta corrida"><option value="facil">Fácil · menores gastos</option><option value="normal" selected>Normal · economía base</option><option value="dificil">Difícil · mayores gastos</option></select></label>
         <button id="start" class="button-start" type="button">Iniciar simulación</button>
       </div>
       <p id="runFeedback" class="run-feedback" role="alert" hidden></p>
@@ -199,7 +200,7 @@
     </form>
   </dialog>
   <span id="audioStatusAnchor" class="visually-hidden" aria-hidden="true"></span><p id="audioStatus" class="audio-feedback visually-hidden" role="status" aria-live="polite"></p>
-  <script type="module" src="/app.js?v=20261127-training-dashboard-v12"></script>
+  <script type="module" src="/app.js?v=20261127-difficulty-routing-v13"></script>
 </body>
 </html>
 
